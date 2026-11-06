@@ -1,0 +1,23 @@
+{
+  "method": "Maximum over 8001 evenly spaced beat positions; model space, not page layout",
+  "results": [
+    {
+      "step_beats": "1/2",
+      "segments": 16,
+      "max_cc_error_estimate": 2.3451129173333336,
+      "max_staff_space_error_estimate": 0.07386182416797901
+    },
+    {
+      "step_beats": "1/4",
+      "segments": 32,
+      "max_cc_error_estimate": 0.7751334642526189,
+      "max_staff_space_error_estimate": 0.02441365241740532
+    },
+    {
+      "step_beats": "1/8",
+      "segments": 64,
+      "max_cc_error_estimate": 0.22523510209121866,
+      "max_staff_space_error_estimate": 0.00709401896350295
+    }
+  ]
+}

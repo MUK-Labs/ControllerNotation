@@ -1,0 +1,54 @@
+Native line chain experiment - Dorico 5
+Tested 6 November 2026
+
+RESULT
+An external Lua script successfully created three consecutive native solid
+lines, each covering two quarter-note beats. Both endpoints were attached
+to rhythmic positions. The script repeated the current line, changed its
+start/end heights, and applied an engraving endpoint offset.
+
+The four heights are -4, +4, -4, +2 in Dorico's half-space position units.
+This gives a rising, falling, then rising contour across bars 1 and 2.
+
+VERIFIED
+- The three objects were inserted by running three-native-segments.lua.
+- The joins looked continuous in the original four-bars-per-system layout.
+- Moving bars 3 and 4 to the next system widened bars 1 and 2; the joins held.
+- The PDF contains three filled vector quadrilaterals for the segments,
+  with slight overlap at the two joins rather than a raster image.
+- Moving the system break to the start of bar 2 carried the third segment
+  to the next system at the matching vertical height.
+
+LIMITS
+- The 9/8-space horizontal end offset is calibrated to this simple fixture,
+  not proven for arbitrary noteheads, rests, spacing or engraving settings.
+- At the bar-2 system break, that offset makes the second segment extend
+  slightly beyond the right edge. System-end offsets need separate handling.
+- Each segment remains a separate object, not a single editable polyline.
+- This experiment uses four hard-coded values. It does not yet read MIDI,
+  reduce dense CC streams, generate arbitrary rhythmic spans, or smooth curves.
+- This prototype retains the quarter-note guide notes on the controller staff.
+  Hiding those notes and preserving the joins has not been tested.
+- True Bezier curves were not created. A future converter could approximate
+  a smoothed contour using additional straight segments.
+
+FILES
+native-line-chain.dorico: completed original layout, three generated segments.
+native-line-chain-reflow.dorico: same chain with wider bars, break before bar 3.
+native-line-chain-reflow.pdf: vector print export of the wider layout.
+native-line-chain-system-break.dorico: break at bar 2, showing the edge limit.
+native-line-chain.musicxml: clean starting fixture with no generated lines.
+three-native-segments.lua: the tested proof-of-concept macro.
+
+REPRODUCE
+1. Open native-line-chain.musicxml as a new Dorico project.
+2. In Write mode, select the first TWO quarter notes on Controller.
+3. Open the Lines panel. Set BOTH Start and End attachment to Rhythmic position.
+4. Choose Script > Run Script and open three-native-segments.lua.
+5. The script should create the three segments and leave the last selected.
+
+NEXT IMPLEMENTATION STEP
+Build a MIDI reader that resamples a chosen CC onto a defined rhythmic grid,
+then generates a macro using this verified insertion/repeat mechanism.
+Handle system endpoints separately and validate hidden guide notes before
+calling the result a general-purpose score converter.

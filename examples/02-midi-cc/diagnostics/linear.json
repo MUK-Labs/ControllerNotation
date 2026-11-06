@@ -1,0 +1,100 @@
+{
+  "source": "input.mid",
+  "cc": 74,
+  "channel": 1,
+  "ppqn": 480,
+  "source_event_count": 9,
+  "segments": 16,
+  "step_beats": "1/2",
+  "start_beat": "0",
+  "interpolation": "linear",
+  "fractional_height": false,
+  "fixture_meter": "4/4",
+  "source_meters": [
+    [
+      0,
+      4,
+      4
+    ]
+  ],
+  "system_end_segments": [],
+  "end_dx_spaces": "9/8",
+  "system_end_dx_spaces": "0",
+  "samples": [
+    {
+      "beat": "0",
+      "cc": 0.0
+    },
+    {
+      "beat": "1/2",
+      "cc": 16.0
+    },
+    {
+      "beat": "1",
+      "cc": 32.0
+    },
+    {
+      "beat": "3/2",
+      "cc": 64.0
+    },
+    {
+      "beat": "2",
+      "cc": 96.0
+    },
+    {
+      "beat": "5/2",
+      "cc": 111.5
+    },
+    {
+      "beat": "3",
+      "cc": 127.0
+    },
+    {
+      "beat": "7/2",
+      "cc": 127.0
+    },
+    {
+      "beat": "4",
+      "cc": 127.0
+    },
+    {
+      "beat": "9/2",
+      "cc": 111.5
+    },
+    {
+      "beat": "5",
+      "cc": 96.0
+    },
+    {
+      "beat": "11/2",
+      "cc": 64.0
+    },
+    {
+      "beat": "6",
+      "cc": 32.0
+    },
+    {
+      "beat": "13/2",
+      "cc": 16.0
+    },
+    {
+      "beat": "7",
+      "cc": 0.0
+    },
+    {
+      "beat": "15/2",
+      "cc": 0.0
+    },
+    {
+      "beat": "8",
+      "cc": 0.0
+    }
+  ],
+  "limitations": [
+    "Fixture meter is explicit; source meter changes are not imported.",
+    "CC is resampled: fast changes between grid points can be lost.",
+    "Hold interpolation still draws straight ramps between sampled vertices.",
+    "System-end corrections are manual and become stale after reflow.",
+    "SMF format 0/1 with PPQN only; no 14-bit CC, NRPN, or live MIDI."
+  ]
+}
