@@ -1,5 +1,11 @@
 # ControllerNotation
 
+## Browser workbench
+
+[Open ControllerNotation](https://muk-labs.github.io/ControllerNotation/) to convert MIDI CC and an optional MusicXML layout into a Dorico guide score and native-line scripts. Files are processed in your browser. Start with **Try a changing-meter example**.
+
+See [the web workflow and validation notes](docs/web-workbench.md) for setup, current limits, and local development.
+
 Experimental MIDI CC notation for live-electronics performers, using native
 Dorico line segments attached to rhythmic positions on a one-line staff.
 

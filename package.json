@@ -1,0 +1,15 @@
+{
+  "name": "controller-notation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/web/*.test.js",
+    "dev": "python3 -m http.server 4173 --bind 127.0.0.1 --directory web",
+    "vendor": "node scripts/vendor-web.mjs"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "0.9.12",
+    "fflate": "0.8.3"
+  }
+}

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Turn MIDI controller automation into native, rhythmically anchored lines in Dorico. A private, browser-based composer’s workbench.">
+  <meta name="color-scheme" content="light">
+  <title>ControllerNotation — MIDI to the page</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+<a class="skip" href="#workspace">Skip to workbench</a>
+<header class="site-header"><a class="brand" href="./"><img src="./icon.svg" alt="" width="32" height="32"><span>Controller<span class="brand-light">Notation</span><small>MUK LABS · COMPOSER’S TOOLS</small></span></a><nav aria-label="Project"><span class="badge">Dorico · experimental</span><a href="https://github.com/MUK-Labs/ControllerNotation" target="_blank" rel="noopener">Source ↗</a></nav></header>
+<main>
+  <section class="intro"><div><p class="eyebrow">FROM MIDI TO THE PAGE</p><h1>Give electronics<br>a place in the score.</h1><p class="lede">Turn controller automation into a playable contour.<br>Native Dorico lines, attached to musical time.</p></div><div class="intro-aside"><svg viewBox="0 0 260 80" aria-hidden="true"><path class="intro-staff" d="M0 40H260 M30 10V70 M120 10V70 M220 10V70"/><path class="intro-curve" d="M0 59C23 60 32 13 63 17S96 65 123 54S173 4 198 20S231 58 260 32"/><circle cx="123" cy="54" r="4"/></svg><p><span class="status-dot"></span> Your music stays on your device.</p><small>Files are processed locally in this browser.<br>No account, upload or Python installation.</small></div></section>
+  <div class="step-nav" aria-label="Workflow"><a href="#imports"><span>01</span> Bring your exports</a><a href="#shape"><span>02</span> Shape the contour</a><a href="#takeaway"><span>03</span> Take it into Dorico</a></div>
+  <div id="workspace" class="workspace">
+  <div class="controls">
+    <section class="card" id="imports"><div class="section-title"><span class="step-number">01</span><h2>Bring your exports</h2></div>
+      <p class="muted">Export one flow from Dorico. Add its MusicXML to account for bars and system breaks.</p>
+      <label class="file-box" id="midi-drop"><input id="midi-file" type="file" accept=".mid,.midi,audio/midi"><span class="file-icon">♩</span><span><strong>MIDI controller data</strong><span id="midi-name">Choose a .mid file or drop it here</span></span><span class="file-arrow">↥</span></label>
+      <label class="file-box optional" id="xml-drop"><input id="xml-file" type="file" accept=".musicxml,.xml,.mxl"><span class="file-icon">≋</span><span><strong>MusicXML layout <em>optional</em></strong><span id="xml-name">.musicxml, .xml or compressed .mxl</span></span><span class="file-arrow">↥</span></label>
+      <button type="button" id="remove-layout" class="text-button" hidden>Remove layout</button>
+      <div class="import-actions"><button type="button" id="demo" class="secondary">Try a changing-meter example <span>↗</span></button><details><summary>How to export from Dorico</summary><ol><li>Use <strong>File → Export → MIDI</strong> for the flow containing your CC automation.</li><li>Use <strong>File → Export → MusicXML</strong>. Export the same flow and the actual destination layout—full score or performer’s part.</li><li>Keep both exports on the same written timeline. MIDI playback repeats may otherwise shift the alignment.</li></ol><p>MusicXML records this layout’s breaks. Export it again after reflowing the score.</p></details></div>
+      <p id="import-status" class="small muted" role="status"></p>
+      <p id="file-error" class="error" role="alert" hidden></p>
+    </section>
+    <section class="card" id="shape"><div class="section-title"><span class="step-number">02</span><h2>Shape the contour</h2></div>
+      <fieldset id="settings" disabled><legend class="sr-only">Contour settings</legend>
+        <label for="stream">Controller stream</label><select id="stream"><option>Import MIDI to find controllers</option></select>
+        <div class="field-row"><div><label for="mode">Curve</label><select id="mode"><option value="smooth">Smooth · bounded cubic</option><option value="linear">Linear · direct transitions</option><option value="hold">Hold · sampled steps</option></select></div><div><label for="grid">Anchor grid</label><select id="grid"><option value="0.125">1/32 note · finer</option><option value="0.25">1/16 note</option><option value="0.5">1/8 note</option><option value="1">1/4 note · fewer lines</option></select></div></div>
+        <label class="range-label" for="height">Contour height <output id="height-value" for="height">4 staff spaces</output></label><input id="height" type="range" min="1" max="8" step="0.5" value="4">
+        <div id="repeat-check" class="notice" hidden><label class="checkbox"><input type="checkbox" id="alignment">I checked that MIDI and MusicXML follow the same written timeline, without unfolded repeats.</label></div>
+        <details class="advanced"><summary>Timing & engraving settings</summary>
+          <p>All times count <strong>quarter notes from zero at flow start</strong>, regardless of the time signature.</p>
+          <div class="field-row"><div><label for="start">Start beat</label><input id="start" type="number" min="0" step="0.125" placeholder="First grid point"></div><div><label for="end">End beat</label><input id="end" type="number" min="0" step="0.125" placeholder="Last grid point"></div></div>
+          <label for="meter">Fallback meter, if absent from MIDI</label><input id="meter" type="text" value="4/4" maxlength="8"><p class="small muted">MusicXML overrides MIDI meter. MIDI meter overrides this fallback.</p>
+          <div class="field-row"><div><label for="end-dx">Ordinary end X</label><input id="end-dx" type="number" min="-5" max="5" step="0.025" value="1.125"></div><div><label for="system-dx">System end X</label><input id="system-dx" type="number" min="-5" max="5" step="0.025" value="0.7"></div></div>
+          <p class="small muted">Offsets are in staff spaces, calibrated on our Dorico 5 test. Check the result in your layout.</p>
+        </details>
+      </fieldset>
+    </section>
+  </div>
+  <div class="results">
+    <section class="card preview-card" aria-labelledby="preview-title"><div class="preview-header"><div><p class="eyebrow">LIVE PREVIEW</p><h2 id="preview-title">A gesture, anchored in time.</h2></div><span id="preview-badge" class="badge">Waiting for MIDI</span></div>
+      <div id="preview-empty" class="empty-state"><svg viewBox="0 0 500 160" aria-hidden="true"><path class="empty-grid" d="M0 40H500 M0 80H500 M0 120H500 M90 20V140 M250 20V140 M410 20V140"/><path class="empty-curve" d="M20 110C80 110 80 36 140 36S215 125 275 108S340 25 385 45S440 103 480 65"/></svg><strong>Your contour will appear here</strong><p>Choose a MIDI file or try the example.<br>We’ll find the controllers and line them up with the score.</p></div>
+      <div id="preview-content" hidden><div class="chart-wrap"><svg id="chart" viewBox="0 0 760 285" role="img" aria-labelledby="chart-title chart-desc"></svg></div><div class="legend"><span><i class="legend-line"></i>Native line contour</span><span><i class="legend-line raw"></i>Source CC</span><span><i class="legend-line break"></i>System break</span></div><p class="chart-caption">Quarter-note beats from flow start. Preview spacing is uniform; Dorico uses the score’s rhythmic spacing.</p><div id="stats" class="stats"></div></div>
+      <div id="layout-status" class="layout-status"><span class="status-dot muted-dot"></span><span>Add MusicXML to locate system endings automatically.</span></div>
+      <div id="warnings" class="warnings" aria-live="polite"></div><p id="build-error" class="error" role="alert" hidden></p>
+    </section>
+    <section class="card takeaway" id="takeaway"><div class="section-title"><span class="step-number">03</span><h2>Take it into Dorico</h2></div><p>Download a guide score and short scripts that draw native lines. A few setup steps happen inside Dorico.</p>
+      <button id="download" class="primary" type="button" disabled><span>Download Dorico kit</span><span>↓</span></button><p id="download-detail" class="small muted">MusicXML guide · Lua scripts · step-by-step instructions</p><p id="download-status" class="small success" role="status"></p>
+      <div class="handoff"><div><span>1</span><p><strong>Open & prepare</strong>Import the guide into a new project, retain its breaks, then hide the Controller guide notes.</p></div><div><span>2</span><p><strong>Choose the starting anchor</strong><span id="start-location">The kit identifies the exact guide note.</span> Set both line attachments to Rhythmic position.</p></div><div><span>3</span><p><strong>Run the numbered scripts</strong>Use Script → Run Script. Keep the last line selected between chunks, then check the joins.</p></div></div>
+      <details><summary>Copying into an existing score</summary><p>Prepare equivalent hidden guide notes on a pitched controller staff. Filter and copy the horizontal lines, then paste at the same musical position. The kit gives the precise starting beat.</p><p>System corrections belong to the exported destination layout. If its breaks change, regenerate for that layout and replace the old contour.</p></details>
+    </section>
+  </div></div>
+  <section class="footnotes"><div><h3>Native objects. Musical anchors.</h3><p>Smoothing is sampled into connected straight lines. Each segment stays attached to rhythmic positions, so meter changes do not change its timing. Guide notes remain as hidden anchors.</p></div><div><h3>A tested experiment, still evolving.</h3><p>Tested with Dorico 5.1.81 on macOS. Supports MIDI 0/1, PPQN and 7-bit CC. One flow at a time; tuplets, mid-bar breaks and other Dorico versions need further testing. This creates notation, not MIDI playback.</p></div></section>
+</main><footer><span>ControllerNotation <span class="muted">/ An open composer’s workbench</span></span><a href="https://github.com/MUK-Labs/ControllerNotation/issues" target="_blank" rel="noopener">Share a test or report an issue ↗</a></footer>
+<noscript>This tool needs JavaScript to process files locally in your browser.</noscript>
+</body></html>
