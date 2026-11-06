@@ -1,9 +1,14 @@
 import struct
+import contextlib
+import io
+import json
+from pathlib import Path
+import tempfile
 import unittest
 from fractions import Fraction as F
 import xml.etree.ElementTree as ET
 
-from controller_notation import MidiError, bezier_spans, fixture, grid, lua_macro, read_cc, sample
+from controller_notation import MidiError, bezier_spans, fixture, grid, lua_macro, main, read_cc, sample
 
 
 def vlq(value):
@@ -118,6 +123,23 @@ class SamplingTests(unittest.TestCase):
 
 
 class GenerationTests(unittest.TestCase):
+    def test_preserve_origin_retains_lead_in_without_inventing_cc(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / 'late.mid'
+            source.write_bytes(smf(vlq(540) + b'\xb0\x18\x0f' + vlq(7860) + b'\x18\x32' + END))
+            output = Path(folder) / 'result'
+            with contextlib.redirect_stdout(io.StringIO()):
+                main([str(source), '--cc', '24', '--step', '1/8', '--start-beat', '9/8',
+                      '--preserve-origin', '--output', str(output)])
+            report = json.loads(output.with_suffix('.json').read_text())
+            self.assertEqual(report['fixture_origin_beat'], '0')
+            self.assertEqual(report['first_controller_guide_note_1based'], 10)
+            self.assertEqual(report['samples'][0], {'beat': '9/8', 'cc': 15.0})
+            self.assertEqual(report['samples'][-1]['beat'], '35/2')
+            self.assertEqual(report['segments'], 131)
+            xml = ET.fromstring(output.with_suffix('.musicxml').read_text())
+            self.assertEqual(len(xml.findall('part')[1].findall('measure')), 5)
+
     def test_fixture_keeps_anchor_after_last_segment(self):
         root = ET.fromstring(fixture(F(1, 2), 16))
         parts = root.findall('part')

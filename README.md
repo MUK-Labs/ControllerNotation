@@ -23,6 +23,15 @@ arbitrary existing score. Sibelius has not been tested in this repository.
 
 ## Open the results
 
+- [CC24 pasted into changing meters](examples/05-meter-transfer/cc24-changing-meters.dorico)
+  and [PDF preview](examples/05-meter-transfer/cc24-changing-meters.pdf): all
+  131 segments retain their timing and sampled heights across six bars and four
+  systems. Seven endpoint offsets needed correction after the paste. See the
+  [meter-transfer experiment](docs/meter-transfer-experiment.md).
+- [Real CC24 score](examples/04-cc24/cc24-smooth.dorico) and
+  [PDF](examples/04-cc24/cc24-smooth.pdf): 328 source events,
+  sampled into 131 verified native segments on a 32nd-note grid. See the
+  [CC24 experiment](docs/cc24-experiment.md) for timing and sampling limits.
 - [Denser Bezier-sampled score](examples/03-bezier/bezier-32.dorico) and
   [PDF](examples/03-bezier/bezier-32.pdf): 32 segments, sixteenth-note anchors.
 - [Smoothing comparison](examples/03-bezier/smoothing-comparison.pdf) and
@@ -58,8 +67,12 @@ NRPN and live MIDI are outside this prototype.
 `--start-beat` and `--end-beat` select an interval. The default end is the last
 selected CC event. The interval must be an exact multiple of the grid step.
 If the first CC event is after the requested start, supply `--initial-value`.
-The fixture starts at the selected interval's origin; it does not include an
-empty lead-in matching `--start-beat`.
+By default the fixture starts at the selected interval's origin. Add
+`--preserve-origin` to include the preceding guide notes and retain the source's
+absolute beat positions. This requires `--start-beat` on the guide grid. Hide
+all controller guides, then select the note identified by
+`first_controller_guide_note_1based` in the JSON before running the macro.
+No line is drawn before that note, and no initial CC value is invented.
 
 ## Run in Dorico
 
@@ -134,15 +147,21 @@ the layout changes. Use `--end-dx` and `--system-end-dx` for other calibrations.
 Only breaks at segment boundaries have been tested. The generator cannot read
 Dorico's layout to discover breaks automatically.
 
+The [changing-meter paste test](docs/meter-transfer-experiment.md) confirms that
+the contour's quarter-note timing survives a different bar organization.
+Copied engraving offsets also survive: restore ordinary offsets at former
+system endings, then trim the new system-ending segments. The supplied
+`05-meter-transfer` macros perform those two property changes on selected lines.
+
 ## Validation and repository layout
 
 ```sh
 python3 -m unittest discover -s tests -v
 ```
 
-Sixteen tests cover MIDI parsing, timing, interpolation bounds, Bezier tangent
+Seventeen tests cover MIDI parsing, timing, interpolation bounds, Bezier tangent
 continuity, equivalence with the previous model, fixture durations and the
-placement regression at staff crossings. The optional
+placement regression at staff crossings, and preservation of an initial gap. The optional
 `scripts/verify_fixture_pdf.py` requires `pdfplumber` and checks the supplied
 exported vector geometry. Its captured results are in
 `examples/02-midi-cc/verification.json`.
@@ -152,6 +171,13 @@ exported vector geometry. Its captured results are in
 - `examples/03-bezier/`: finer sampling, explicit cubic controls, comparison and
   measured PDF geometry. `scripts/compare_bezier.py` regenerates the model
   comparison using ReportLab; the core converter still has no dependencies.
+- `examples/04-cc24/`: real Dorico MIDI export converted into five 4/4 bars,
+  preserving its initial gap; native score, PDF, sampling analysis and geometry
+  verification. The continuation macro is specific to this run's 102-line checkpoint.
+- `examples/05-meter-transfer/`: actual CC24 paste into changing meters, before
+  and after endpoint correction, with measurement reports. The fixture-specific
+  `scripts/verify_meter_transfer.py` compares native PDF line geometry with the
+  reference-note timing grid and the source's sampled values.
 - `examples/02-midi-cc/diagnostics/`: earlier approaches retained as evidence;
   their macros have known clearance gaps and are not the current generator.
 - `examples/01-native-chain/`: earlier three-segment, hard-coded proof of concept.

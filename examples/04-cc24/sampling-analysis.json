@@ -1,0 +1,12 @@
+{
+  "metric": "Native polygon interpolated in musical time, compared at source CC event times; not page x coordinates",
+  "source_event_count": 328,
+  "native_segments": 131,
+  "max_error_cc": 14.5,
+  "mean_absolute_error_cc": 1.0517843019977546,
+  "worst_beat": "241/16",
+  "worst_source_cc": 28,
+  "worst_sampled_cc": 42.5,
+  "first_beat": "9/8",
+  "last_beat": "35/2"
+}

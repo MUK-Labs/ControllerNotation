@@ -18,7 +18,7 @@ def inspect(pdf_path, report_path):
         staff_lines = sorted([p for p in page.lines
                               if abs(p['top'] - p['bottom']) < 1e-5
                               and p['x1'] - p['x0'] > 100], key=lambda p: p['top'])
-        assert len(staff_lines) in (6, 12), 'Unexpected fixture layout'
+        assert staff_lines and len(staff_lines) % 6 == 0, 'Unexpected fixture layout'
         all_segments, systems = [], []
         for i in range(0, len(staff_lines), 6):
             reference, controller = staff_lines[i:i+5], staff_lines[i+5]

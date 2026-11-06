@@ -293,6 +293,8 @@ def main(argv=None):
     p.add_argument('--channel', type=int, default=1)
     p.add_argument('--step', type=Fraction, default=Fraction(1, 2), help='Quarter-note beats per segment')
     p.add_argument('--start-beat', type=Fraction, default=Fraction(0))
+    p.add_argument('--preserve-origin', action='store_true',
+                   help='Include guide notes before start-beat; select the reported start note')
     p.add_argument('--end-beat', type=Fraction)
     p.add_argument('--initial-value', type=int, choices=range(128), metavar='0..127')
     p.add_argument('--interpolation', choices=['hold', 'linear', 'smooth', 'bezier'], default='linear',
@@ -319,10 +321,17 @@ def main(argv=None):
         if meter_n <= 0 or meter_d not in (1, 2, 4, 8, 16, 32):
             raise ValueError('Invalid fixture meter')
         macro = lua_macro(values, args.height_spaces, args.end_dx, ends, args.system_end_dx)
-        xml = fixture(args.step, len(times) - 1, f'CC{args.cc} - {args.interpolation} - {args.step} beat grid', meter_n, meter_d)
+        leading_steps = args.start_beat / args.step if args.preserve_origin else Fraction(0)
+        if leading_steps.denominator != 1:
+            raise ValueError('--preserve-origin requires start-beat on the guide grid')
+        leading_steps = int(leading_steps)
+        xml = fixture(args.step, leading_steps + len(times) - 1,
+                      f'CC{args.cc} - {args.interpolation} - {args.step} beat grid', meter_n, meter_d)
         report = {'source': args.midi.name, 'cc': args.cc, 'channel': args.channel,
                   'ppqn': midi.ppqn, 'source_event_count': len(pts), 'segments': len(times) - 1,
                   'step_beats': str(args.step), 'start_beat': str(args.start_beat),
+                  'fixture_origin_beat': '0' if args.preserve_origin else str(args.start_beat),
+                  'first_controller_guide_note_1based': leading_steps + 1,
                   'interpolation': args.interpolation, 'height_spaces': args.height_spaces,
                   'placement': 'fixed-below-staff-base-with-fractional-DY',
                   'fixture_meter': args.meter, 'source_meters': midi.meters,
