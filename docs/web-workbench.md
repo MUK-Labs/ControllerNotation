@@ -52,7 +52,8 @@ behavior across every Dorico version or every layout feature.
 
 `web/demo/changing-meters.musicxml` preserves this real export's notes, durations,
 meters and print markers, with the CC line directions and identifying metadata
-removed. `web/demo/controller.mid` is a separate synthetic CC24 demonstration;
+removed. `web/demo/controller.mid` is a separate synthetic CC24 demonstration
+with five discrete CC25 knob instructions;
 the user's original MIDI and score are not part of the website.
 
 MusicXML's [`print` element](https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/print/)
@@ -88,6 +89,44 @@ different part timelines are rejected rather than guessed.
 - Thirty-two-segment chunks have exactly the same command sequence as the
   full macro. This avoids one long uninterrupted script, but does not guarantee
   Dorico cannot stall. There is no automatic recovery from a partially run chunk.
+
+## Optional knob instructions
+
+Choose **Add knob instructions**, then select a CC number/channel independently
+of the contour. Every distinct-time event makes one knob, including repeated
+values. Same-tick duplicates follow the MIDI parser's existing last-event rule.
+Events outside the sampled contour range are omitted and counted. Events between
+guide points retain their exact quarter-note time; they are never silently snapped.
+
+Knob centres interpolate the **sampled native polyline** at the event time. The
+secondary value controls a 270-degree pointer sweep and a separate scaled label:
+`min + (max - min) * value / 127`. Units include MIDI, percent, semitones and custom
+labels, with 0–2 decimal places. Unit changes set sensible range defaults; users
+can then edit both endpoints. Pointer precision is independent of label rounding.
+
+The ZIP adds `knobs/symbols/*.svg`, `knobs/placements.html`, `knobs/KNOBS.txt` and
+knob records in `report.json`. SVGs have a white circular face and transparent
+corners. Repeated values reuse artwork but retain separate timed instructions.
+The placement list is a visual checklist, not an imported/anchored score.
+
+**Current Dorico limitation:** native knob import and placement are manual.
+The existing Lua scripts create the contour only. In Dorico 5.1.81 we verified
+direct SVG import into a glyph playing technique, rhythmic anchoring via Shift+P,
+and opaque masking over the contour. Recorded commands include
+`NoteInput.CreatePlayingTechnique?Definition=...&UseLocalOverride=0` and engraving
+properties `kPlayingTechniqueStartDX` / `kPlayingTechniqueStartDY`.
+
+A compact `.doricolib` containing graphics, blob data, composites and playing
+technique appearances imported the technique and composite, but did not bring
+the graphic/blob dependencies into the score. The result was invisible. A second
+reference variant had the same result. These failed libraries are not shipped.
+We have not established a reliable bulk insertion/centering route, and make no
+claim that the web preview is already an automatically placed Dorico knob layer.
+Use the kit's explicit manual import, playback suppression and placement steps.
+
+Five additional Node tests cover mapping endpoints, pointer precision, exact
+off-grid timing, repeated values, clipping, XML escaping, invalid/dense streams,
+ZIP contents and unchanged line export. The two-stream demo is synthetic.
 
 ## Development and deployment
 

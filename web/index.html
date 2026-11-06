@@ -27,9 +27,20 @@
     </section>
     <section class="card" id="shape"><div class="section-title"><span class="step-number">02</span><h2>Shape the contour</h2></div>
       <fieldset id="settings" disabled><legend class="sr-only">Contour settings</legend>
-        <label for="stream">Controller stream</label><select id="stream"><option>Import MIDI to find controllers</option></select>
+        <label for="stream">Contour CC stream</label><select id="stream"><option>Import MIDI to find controllers</option></select>
         <div class="field-row"><div><label for="mode">Curve</label><select id="mode"><option value="smooth">Smooth · bounded cubic</option><option value="linear">Linear · direct transitions</option><option value="hold">Hold · sampled steps</option></select></div><div><label for="grid">Anchor grid</label><select id="grid"><option value="0.125">1/32 note · finer</option><option value="0.25">1/16 note</option><option value="0.5">1/8 note</option><option value="1">1/4 note · fewer lines</option></select></div></div>
         <label class="range-label" for="height">Contour height <output id="height-value" for="height">4 staff spaces</output></label><input id="height" type="range" min="1" max="8" step="0.5" value="4">
+        <div class="knob-settings">
+          <label class="checkbox"><input type="checkbox" id="knobs-enabled"><span><strong>Add knob instructions</strong><small>A second CC supplies discrete positions and values.</small></span></label>
+          <div id="knob-controls" hidden>
+            <label for="knob-stream">Knob CC stream</label><select id="knob-stream"></select>
+            <div class="field-row"><div><label for="knob-unit">Displayed unit</label><select id="knob-unit"><option value="percent">Percent (%)</option><option value="midi">MIDI value</option><option value="semitones">Semitones (st)</option><option value="custom">Custom unit</option></select></div><div><label for="knob-decimals">Decimal places</label><select id="knob-decimals"><option value="0">0 · whole numbers</option><option value="1">1</option><option value="2">2</option></select></div></div>
+            <div class="field-row"><div><label for="knob-min">Minimum · CC 0</label><input id="knob-min" type="number" value="0" step="any"></div><div><label for="knob-max">Maximum · CC 127</label><input id="knob-max" type="number" value="100" step="any"></div></div>
+            <div id="custom-unit-field" hidden><label for="knob-custom">Unit label</label><input id="knob-custom" type="text" maxlength="16" placeholder="e.g. Hz, ms, dB"></div>
+            <p class="small muted knob-hint">Each knob sits on the contour. Its pointer and label use the second CC’s value. Repeated messages remain separate instructions.</p>
+            <p class="notice">Knob SVGs and timings are generated automatically. Importing and placing the knobs in Dorico currently requires manual steps; see the kit’s knob guide.</p>
+          </div>
+        </div>
         <div id="repeat-check" class="notice" hidden><label class="checkbox"><input type="checkbox" id="alignment">I checked that MIDI and MusicXML follow the same written timeline, without unfolded repeats.</label></div>
         <details class="advanced"><summary>Timing & engraving settings</summary>
           <p>All times count <strong>quarter notes from zero at flow start</strong>, regardless of the time signature.</p>

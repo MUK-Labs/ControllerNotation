@@ -1,5 +1,6 @@
 import { fraction, formatBeat, EPS } from './contour.js';
 import { makeMeterLayout } from './musicxml.js';
+import { knobFiles } from './knobs.js';
 const escape=s=>String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
 const cmd=s=>`cmd('${s}')`;
 const property=(name,value)=>cmd(`UI.InvokePropertyChangeValue?Type=kHorizontalLine${name}&Value=${value}`);
@@ -72,7 +73,7 @@ export function guideMusicXML(c,layout){
   return xml+'</score-partwise>\n';
 }
 
-export function buildPackage(contour,{meters=[],fallback='4/4',endDX=1.125,systemEndDX=0.7,sourceName='MIDI export',layoutName=null}={}){
+export function buildPackage(contour,{meters=[],fallback='4/4',endDX=1.125,systemEndDX=0.7,sourceName='MIDI export',layoutName=null,knobs=null}={}){
   const layout=guideLayout(contour,meters,fallback);
   const c={...contour,systemEnds:[...contour.systemEnds]};
   if(layout.appended&&!c.systemEnds.includes(c.count))c.systemEnds.push(c.count);
@@ -94,10 +95,13 @@ export function buildPackage(contour,{meters=[],fallback='4/4',endDX=1.125,syste
     'app:doCommand([[Edit.ToggleHideNotehead]])',
     'app:doCommand([[Edit.ToggleHideStem]])',''].join('\n');
   const warnings=[...c.warnings,'End offsets are calibrated against a Dorico 5.1.81 test fixture. Check joins and barlines in your destination layout.','Layout-specific corrections become stale after changing system breaks or pasting to another layout.'];
+  const knobKit=knobs?knobFiles(knobs,layout):null;
+  if(knobKit){Object.assign(files,knobKit.files);warnings.push(...knobs.warnings);}
   if(layout.appended)warnings.push('An extra guide-only bar holds the final endpoint. Check the final line when transferring to the end of a flow.');
   const report={version:1,sourceName,layoutName,cc:c.cc,channel:c.channel,mode:c.mode,gridQuarterBeats:c.step,startQuarterBeat:c.start,endQuarterBeat:c.end,firstGuide:c.firstGuide,startDescription,segments:c.count,heightStaffSpaces:c.height,endDX,systemEndDX,systemEndSegments:c.systemEnds,sourceEvents:c.sourceEvents,sampleErrorCC:c.error,
     bars:layout.bars.map(b=>({number:b.number,start:b.start,duration:b.duration,meter:b.meter.label})),breaks:layout.breaks,
     samples:c.times.map((beat,i)=>({beat,cc:c.values[i]})),warnings};
+  if(knobKit)report.knobs={...knobs,markers:knobKit.placements,symbols:knobKit.symbols,nativePlacement:'manual'};
   files['report.json']=JSON.stringify(report,null,2)+'\n';
   files['START-HERE.txt']=`CONTROLLERNOTATION — CC${c.cc}, channel ${c.channel}
 ${c.count} native straight segments · ${c.mode} sampling · ${c.height} staff spaces high
@@ -153,5 +157,7 @@ MIDI format 0/1, PPQN, 7-bit CC only. No 14-bit CC/NRPN or live MIDI decoding.
 One flow per export. Repeats must share the same written timeline in both files.
 Report.json records exact sampled values and timings for checking the result.
 `;
+  if(knobKit)files['START-HERE.txt']+='\nKNOB LAYER\n'+`${knobs.markers.length} knob events from CC${knobs.cc}, channel ${knobs.channel}.\n`+
+    'Open knobs/placements.html and read knobs/KNOBS.txt. SVGs and labels are ready;\nimporting their artwork and placing native knobs in Dorico are manual steps.\nThe draw/ scripts create only the contour.\n';
   return {files,report,chunks,startDescription,layout};
 }
