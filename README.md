@@ -1,4 +1,4 @@
-# ControllerNotation
+# [ControllerNotation](https://muk-labs.github.io/ControllerNotation/)
 
 ## Browser workbench
 
